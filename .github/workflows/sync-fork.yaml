@@ -1,0 +1,29 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork repo
+        uses: actions/checkout@v4
+        with:
+          repository: osnabrugge/onedr0p-containers
+          path: fork
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add source remote
+        run: |
+          cd fork
+          git remote add source https://github.com/onedr0p/containers.git
+
+      - name: Sync source to fork
+        run: |
+          cd fork
+          git fetch source
+          git reset --hard source/main
+          git push origin main --force
